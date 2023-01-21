@@ -1,4 +1,5 @@
 import ListErrors from "./ListErrors";
+import { generateImage } from "../agent"
 import React from "react";
 import agent from "../agent";
 import { connect } from "react-redux";
@@ -22,7 +23,7 @@ const mapDispatchToProps = (dispatch) => ({
   onSubmit: (payload) => dispatch({ type: ITEM_SUBMITTED, payload }),
   onUnload: (payload) => dispatch({ type: EDITOR_PAGE_UNLOADED }),
   onUpdateField: (key, value) =>
-    dispatch({ type: UPDATE_FIELD_EDITOR, key, value }),
+  dispatch({ type: UPDATE_FIELD_EDITOR, key, value }),
 });
 
 class Editor extends React.Component {
@@ -30,7 +31,7 @@ class Editor extends React.Component {
     super();
 
     const updateFieldEvent = (key) => (ev) =>
-      this.props.onUpdateField(key, ev.target.value);
+    this.props.onUpdateField(key, ev.target.value);
     this.changeTitle = updateFieldEvent("title");
     this.changeDescription = updateFieldEvent("description");
     this.changeImage = updateFieldEvent("image");
@@ -55,13 +56,22 @@ class Editor extends React.Component {
         image: this.props.image,
         tagList: this.props.tagList,
       };
-
-      const slug = { slug: this.props.itemSlug };
-      const promise = this.props.itemSlug
-        ? agent.Items.update(Object.assign(item, slug))
-        : agent.Items.create(item);
-
-      this.props.onSubmit(promise);
+    
+      const data = { 
+        "prompt": "A Polar Bear Smiling Eating Cheeseburgers",
+      };
+    
+      generateImage(data)
+        .then((response) => {
+          item.image = response.data;
+          const slug = { slug: this.props.itemSlug };
+          const promise = this.props.itemSlug
+            ? agent.Items.update(Object.assign(item, slug))
+            : agent.Items.create(item);
+          this.props.onSubmit(promise);        })
+        .catch((err) => {
+            console.log(err);
+        });
     };
   }
 
