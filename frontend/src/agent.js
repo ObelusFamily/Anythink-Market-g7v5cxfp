@@ -10,6 +10,15 @@ const BACKEND_URL =
 
 const API_ROOT = `${BACKEND_URL}/api`;
 
+export const generateImage = (data) => {
+  return superagent
+      .post(`${BACKEND_URL}/openai/generateimage`)
+      .send(data)
+      .then((res) => {
+          return res.body;
+      });
+};
+
 const encode = encodeURIComponent;
 const responseBody = (res) => res.body;
 
@@ -93,6 +102,7 @@ const agentObj = {
   setToken: (_token) => {
     token = _token;
   },
+
 };
 
 export default agentObj;
